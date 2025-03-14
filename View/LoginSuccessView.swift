@@ -28,27 +28,18 @@ class LoginSuccessView: UIView {
     }
 }
 
-//MARK: - UI
+//MARK: - View
 
 extension LoginSuccessView {
     
     private func setupView() {
         let view = loadFormNib()
         view.frame = self.bounds
+        view.backgroundColor = .systemGray4
         addSubview(view)
         okButtonconfig()
         successLabelConfig()
-    }
-    
-     func successLabelConfig() {
-        successLabel.text = "Login Success"
-        successLabel.font = .systemFont(ofSize: 20, weight: .light)
-        successLabel.numberOfLines = 0
-    }
-    
-     func okButtonconfig() {
-        okButton.setTitle("OK", for: .normal)
-        okButton.addTarget(self, action: #selector(okButtonAction), for: .touchUpInside)
+        
     }
     
     private func loadFormNib() -> UIView {
@@ -56,12 +47,22 @@ extension LoginSuccessView {
         return nib.instantiate(withOwner: self, options: nil).first as! UIView
     }
     
+    private func successLabelConfig() {
+        successLabel.text = "Login Success"
+        successLabel.font = .systemFont(ofSize: 20, weight: .light)
+        successLabel.numberOfLines = 0
+    }
+    
+    private func okButtonconfig() {
+        okButton.setTitle("OK", for: .normal)
+        okButton.addTarget(self, action: #selector(okButtonOnTap), for: .touchUpInside)
+    }
 }
 
-
+//MARK: - de
 extension LoginSuccessView {
     
-    @objc func okButtonAction() {
+    @objc func okButtonOnTap() {
         delegate?.loginSuccess()
     }
 }
