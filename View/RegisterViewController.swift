@@ -25,15 +25,34 @@ class RegisterViewController: UIViewController {
     @IBOutlet weak var register: UIButton!
     @IBOutlet weak var error: UILabel!
     @IBOutlet weak var successView: UIView!
+    @IBOutlet weak var toolbar: UIToolbar!
+    @IBOutlet weak var pickerView: UIPickerView!
     
-    let options: [String] = ["Doctorate", "Master", "Bachelor"]
-    let pickerView = UIPickerView()
-    let toolBar = UIToolbar()
-    var isAgree: Bool = false
+    let viewModel = RegisterViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        bindViewModel()
+    }
+}
+
+// MARK: - Binding
+
+extension RegisterViewController {
+    
+    private func bindViewModel() {
+        viewModel.registerIsSuccess = { [weak self] success in
+            if success {
+                self?.successViewSetup()
+                self?.successView.isHidden = false
+                self?.error.isHidden = true
+                
+            } else {
+                self?.error.text = self?.viewModel.error
+                self?.error.isHidden = false
+            }
+        }
     }
 }
 
@@ -58,11 +77,10 @@ extension RegisterViewController {
     private func successViewSetup() {
         let registerSuccessView = RegisterSuccessView(frame: successView.bounds)
         registerSuccessView.delegate = self
-        registerSuccessView.accountText = self.accountTextField.text ?? ""
-        registerSuccessView.passwordText = self.passwordTextField.text ?? ""
-        registerSuccessView.sexText = self.male.isSelected ? "Male" : "Female"
-        registerSuccessView.educationText = self.educationTextField.text ?? ""
-        registerSuccessView.updateUI()
+        registerSuccessView.account.text! += viewModel.account
+        registerSuccessView.password.text! += viewModel.password
+        registerSuccessView.sex.text! += viewModel.gender
+        registerSuccessView.education.text! += viewModel.education
         successView.backgroundColor = .gray
         successView.addSubview(registerSuccessView)
     }
@@ -119,12 +137,13 @@ extension RegisterViewController {
             passwordTextField.isSecureTextEntry = true
         case .education:
             educationTextField.textAlignment = .center
-            educationTextField.rightView = UIImageView(
-                image: UIImage(systemName: "chevron.down"))
+            educationTextField.rightView = UIImageView(image: UIImage(systemName: "chevron.down"))
             educationTextField.rightViewMode = .always
             educationTextField.borderStyle = .line
+            educationTextField.text = viewModel.educationOptions.first
             pickerView.delegate = self
             pickerView.dataSource = self
+            pickerView.selectRow(0, inComponent: 0, animated: false)
             educationTextField.inputView = pickerView
         }
     }
@@ -189,9 +208,9 @@ extension RegisterViewController {
         let doneButton = UIBarButtonItem(title: "done", style: .done, target: self, action: #selector(doneButtonDidTap))
         let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
-        toolBar.setItems([flexSpace, doneButton], animated: false)
-        toolBar.sizeToFit()
-        educationTextField.inputAccessoryView = toolBar
+        toolbar.items = [flexSpace, doneButton]
+        toolbar.sizeToFit()
+        educationTextField.inputAccessoryView = toolbar
     }
 }
 
@@ -201,24 +220,22 @@ extension RegisterViewController {
 extension RegisterViewController {
 
     @objc private func registerButtonDidTap() {
-        let registerError = registerValid()
-        if registerError == nil {
-            successViewSetup()
-            successView.isHidden = false
-            print("register success")
-        } else {
-            error.text = registerError?.rawValue
-            error.isHidden = false
-        }
-            
+        viewModel.account = accountTextField.text ?? ""
+        viewModel.password = passwordTextField.text ?? ""
+        viewModel.gender = male.isSelected ? "Male" : "Female"
+        viewModel.education = educationTextField.text ?? ""
+        viewModel.register()
     }
 
     @objc private func agreeButtonDidTap() {
-        isAgree.toggle()
-        agree.setImage(UIImage(systemName: isAgree ? "checkmark.circle" : "circle"), for: .normal)
+        viewModel.isAgree.toggle()
+        agree.setImage(UIImage(systemName: viewModel.isAgree ? "checkmark.circle" : "circle"), for: .normal)
     }
 
     @objc private func doneButtonDidTap() {
+        if educationTextField.text?.isEmpty ?? true {
+            educationTextField.text = viewModel.education
+        }
         educationTextField.resignFirstResponder()
     }
 
@@ -230,70 +247,11 @@ extension RegisterViewController {
         }
     }
 
-    private func updateSelectButton(isSelected: UIButton, deSelected: UIButton)
-    {
+    private func updateSelectButton(isSelected: UIButton, deSelected: UIButton) {
         isSelected.isSelected = true
         deSelected.isSelected = false
     }
     
-    
-}
-// MARK: - Error
-
-extension RegisterViewController {
-    
-    enum RegisterError: String, Error{
-        case emptyFields = "Please fill all fields"
-        case passwordLengthError = "Password must be at least 8 characters long"
-        case characterError = "Please only use letters, numbers"
-        case educationError = "please select education"
-        case agreeError = "Please agree to the terms and conditions"
-    }
-    
-    private func registerValid() -> RegisterError? {
-        guard let account = accountTextField.text, account != "" else { return .emptyFields }
-        guard let password = passwordTextField.text, password != "" else { return .emptyFields }
-        
-        if accountAndPasswordIsEmpty(account, password) {
-            return .emptyFields
-        } else if passwordLengthlessThanEight(password) {
-            return .passwordLengthError
-        } else if accountLettersAndNumbers(account) || passwordLettersAndNumbers(password) {
-            return .characterError
-        } else if educationIsEmpty() {
-            return .educationError
-        } else if agreeIsNotSelected() {
-            return .agreeError
-        }
-        return nil
-    }
-    
-    private func accountAndPasswordIsEmpty(_ account: String, _ password: String) -> Bool {
-        guard let account = accountTextField.text, account != "" else { return true }
-        guard let password = passwordTextField.text, password != "" else { return true }
-        return false
-    }
-    
-    private func passwordLengthlessThanEight(_ password: String) -> Bool {
-        return password.count < 8
-    }
-    
-    private func accountLettersAndNumbers(_ account: String) -> Bool {
-        return account.rangeOfCharacter(from: .letters) == nil || account.rangeOfCharacter(from: .decimalDigits) == nil
-    }
-    
-    private func passwordLettersAndNumbers(_ password: String) -> Bool {
-        return password.rangeOfCharacter(from: .letters) == nil || password.rangeOfCharacter(from: .decimalDigits) == nil
-    }
-    
-    private func educationIsEmpty() -> Bool {
-        guard let education = educationTextField.text, !education.isEmpty else { return true }
-        return false
-    }
-    
-    private func agreeIsNotSelected() -> Bool {
-        return isAgree == false
-    }
     
 }
 
@@ -304,7 +262,7 @@ extension RegisterViewController: UIPickerViewDelegate {}
 extension RegisterViewController: UIPickerViewDataSource {
 
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return options.count
+        return viewModel.educationOptions.count
     }
 
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -312,11 +270,11 @@ extension RegisterViewController: UIPickerViewDataSource {
     }
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return options[row]
+        return viewModel.educationOptions[row]
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int,inComponent component: Int) {
-        educationTextField.text = options[row]
+        educationTextField.text = viewModel.educationOptions[row]
     }
 }
 
@@ -326,12 +284,11 @@ extension RegisterViewController: UIPickerViewDataSource {
 extension RegisterViewController: RegisterSuccessDelegate {
     
     func registerSuccess() {
-        successView.isHidden = true
+        self.navigationController?.popViewController(animated: true)
     }
 }
 
 
 protocol RegisterSuccessDelegate: AnyObject {
-    
     func registerSuccess()
 }

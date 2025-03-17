@@ -40,6 +40,16 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		6DB8FDC32D87A3430064A32D /* ViewModel */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		6DB8FDC42D87A3570064A32D /* Manager */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Manager;
+			sourceTree = "<group>";
+		};
 		6DFFA5F92D811ECB006196B6 /* 8510_Training */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -98,6 +108,8 @@
 		6DFFA5EE2D811ECB006196B6 = {
 			isa = PBXGroup;
 			children = (
+				6DB8FDC42D87A3570064A32D /* Manager */,
+				6DB8FDC32D87A3430064A32D /* ViewModel */,
 				6DFFA6332D812D5D006196B6 /* Model */,
 				6DFFA62B2D811EF7006196B6 /* View */,
 				6DFFA5F92D811ECB006196B6 /* 8510_Training */,
@@ -133,6 +145,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				6DB8FDC32D87A3430064A32D /* ViewModel */,
+				6DB8FDC42D87A3570064A32D /* Manager */,
 				6DFFA5F92D811ECB006196B6 /* 8510_Training */,
 				6DFFA62B2D811EF7006196B6 /* View */,
 				6DFFA6332D812D5D006196B6 /* Model */,

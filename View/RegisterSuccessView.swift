@@ -15,11 +15,6 @@ class RegisterSuccessView: UIView {
     @IBOutlet weak var education: UILabel!
     @IBOutlet weak var ok: UIButton!
     
-    var accountText: String = ""
-    var passwordText: String = ""
-    var sexText: String = ""
-    var educationText: String = ""
-    
     weak var delegate: RegisterSuccessDelegate?
 
     override func awakeFromNib() {
@@ -33,13 +28,6 @@ class RegisterSuccessView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    func updateUI() {
-        account.text = "Account: \(accountText)"
-        password.text = "Password: \(passwordText)"
-        sex.text = "Sex: \(sexText)"
-        education.text = "Education: \(educationText)"
     }
 }
 
@@ -55,7 +43,7 @@ extension RegisterSuccessView {
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         addSubview(view)
         setupLabel()
-        buttonConfigure()
+        setupButton()
     }
     
     private func loadFormNib() -> UIView {
@@ -104,7 +92,7 @@ extension RegisterSuccessView {
 
 extension RegisterSuccessView {
     
-    private func buttonConfigure() {
+    private func setupButton() {
         ok.setTitle("OK", for: .normal)
         ok.addTarget(self, action: #selector(okButtonDidTap), for: .touchUpInside)
     }

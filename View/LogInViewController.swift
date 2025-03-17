@@ -18,11 +18,29 @@ class LogInViewController: UIViewController {
     @IBOutlet weak var register: UIButton!
     @IBOutlet weak var successView: UIView!
     
-    private var userData = User.user1
+    let viewModel = LoginViewModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        bindViewModel()
+    }
+}
+
+// MARK: - Binding
+
+extension LogInViewController {
+    
+    private func bindViewModel() {
+        viewModel.loginStatus = { [weak self] success in
+            if success {
+                self?.successViewSetup()
+                self?.successView.isHidden = false
+                self?.error.isHidden = true
+            } else {
+                self?.error.isHidden = false
+            }
+        }
     }
 }
 
@@ -36,13 +54,11 @@ extension LogInViewController {
         errorLabelConfigura()
         loginButtonConfigura()
         registerButtonConfigura()
-        successViewSetup()
     }
     
     private func successViewSetup() {
         let loginSuccessView = LoginSuccessView(frame: successView.bounds)
         loginSuccessView.delegate = self
-        successView.isHidden = true
         successView.backgroundColor = .white
         successView.addSubview(loginSuccessView)
     }
@@ -115,23 +131,16 @@ extension LogInViewController {
 extension LogInViewController {
     
     @objc func loginDidTap() {
-        
-        if accountTextField.text == userData.account && passwordTextField.text == userData.password {
-            successView.isHidden = false
-            print("success")
-        } else {
-            error.isHidden = false
-            print("fail")
-        }
+        viewModel.account = accountTextField.text ?? ""
+        viewModel.password = passwordTextField.text ?? ""
+        viewModel.login()
     }
     
     @objc func registerDidTap() {
-        
         let registerViewController = RegisterViewController(nibName: "RegisterViewController", bundle: nil)
         print("push to register")
         navigationController?.pushViewController(registerViewController, animated: true)
     }
-    
 }
 
 // MARK: - LoginSuccessDelegate

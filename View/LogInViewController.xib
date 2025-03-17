@@ -70,7 +70,7 @@
                     <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="14"/>
                     <textInputTraits key="textInputTraits"/>
                 </textField>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ANH-Fq-gHE" userLabel="SuccessView">
+                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ANH-Fq-gHE" userLabel="SuccessView">
                     <rect key="frame" x="16" y="309" width="361" height="234"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                 </view>
